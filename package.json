@@ -1,0 +1,26 @@
+{
+  "name": "SearxBot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "jsonfile": "^2.4.0",
+    "mysql2": "^1.1.1",
+    "node-telegram-bot-api": "^0.24.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fuerbringer/searxbot.git"
+  },
+  "author": "Severin Fürbringer",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fuerbringer/searxbot/issues"
+  },
+  "homepage": "https://github.com/fuerbringer/searxbot#readme"
+}
