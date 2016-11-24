@@ -1,3 +1,5 @@
+'use strict';
+
 var telegramBot = require('node-telegram-bot-api');
 var mysql = require('mysql2');
 var jsonfile = require('jsonfile');
@@ -32,15 +34,30 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	 */
 	bot.onText(/\/setinstance (.+)/, function (msg, match) {
 		var tg_id = msg.chat.id;	// Telegram Chat Id
+		//var tg_foreign;
 		var url = match[1];			// Instance URL
 
 		if(url.length > 0) {
+			var out = '';
+
+			// Set SearX instance and if a chat
+			// entry doesn't exist, insert a new one
+			var sql_chat = "INSERT IGNORE INTO chat (tg_id) values(?)";
+			connection.execute(sql_chat, [tg_id], function(err, results, fields) {
+			});
+
+			var sql_instance = "INSERT IGNORE INTO instance (chat_id, url) "
+				+ " VALUES ((SELECT id FROM chat WHERE tg_id='" + tg_id + "'),?)";
+			connection.execute(sql_instance, [url], function(err, results, fields) {
+				out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
+				bot.sendMessage(tg_id, out);
+			});
+
 
 		} else {
 			// /setinstance Needs an argument
-			bot.sendMessage(tg_id, "Please enter a valid URL or IP");
+			bot.sendMessage(tg_id, 'Please enter a valid URL or IP');
 		}
-
 	});
 
 
