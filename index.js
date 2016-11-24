@@ -1,9 +1,14 @@
-var TelegramBot = require('node-telegram-bot-api');
+var telegramBot = require('node-telegram-bot-api');
 var mysql = require('mysql2');
 var jsonfile = require('jsonfile');
 
+/**
+ * Read DB info and bot token from authentication file
+ */
 jsonfile.readFile('auth.json', function(err, obj) {
+	// Telegram bot token
 	var token = obj.token;
+	// establish MySQL connection
 	var connection = mysql.createConnection({
 		host: obj.db_host,
 		user: obj.db_user,
@@ -11,7 +16,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		database: obj.db_name});
 
 	// Setup polling way
-	var bot = new TelegramBot(token, {polling: true});
+	var bot = new telegramBot(token, {polling: true});
 
 	/**
 	 * Perform search
@@ -22,12 +27,35 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	});
 
 	/**
-	 *
+	 * Set the instance for the chat that'll be used to
+	 * fetch searx results
 	 */
 	bot.onText(/\/setinstance (.+)/, function (msg, match) {
 		var tg_id = msg.chat.id;	// Telegram Chat Id
 		var url = match[1];			// Instance URL
 
+		if(url.length > 0) {
+			bot.sendMessage(tg_id, "URL or IP valid");
+		} else {
+			// /setinstance Needs an argument
+			bot.sendMessage(tg_id, "Please enter a valid URL or IP");
+		}
 
 	});
+
+	/**
+	 * Help output
+	 */
+	bot.onText(/\/help/, function (msg, match) {
+		var tg_id = msg.chat.id;	// Telegram Chat Id
+		bot.sendMessage(tg_id,
+			"SearxBot - Licensed under the AGPL-3.0 License.\n\n"
+			+ "Commands:\n"
+			+ "/setinstance [url]\n"
+			+ "/searx [search_term]\n"
+			+ "/help\n\n"
+			+ "Source Code: https://github.com/fuerbringer/searxbot"
+			);
+	});
+
 });
