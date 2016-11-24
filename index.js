@@ -35,13 +35,14 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		var url = match[1];			// Instance URL
 
 		if(url.length > 0) {
-			bot.sendMessage(tg_id, "URL or IP valid");
+
 		} else {
 			// /setinstance Needs an argument
 			bot.sendMessage(tg_id, "Please enter a valid URL or IP");
 		}
 
 	});
+
 
 	/**
 	 * Help output
