@@ -26,6 +26,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	bot.onText(/\/searx (.+)/, function (msg, match) {
 		var tg_id = msg.chat.id;	// Telegram Chat Id
 		var search_term = match[1]; // Search term
+		// TODO: Fetch json object from searx instance URL for current chat
 	});
 
 	/**
@@ -46,6 +47,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 			connection.execute(sql_chat, [tg_id], function(err, results, fields) {
 			});
 
+			// Log/Insert the search instance url for this chat
 			var sql_instance = "INSERT IGNORE INTO instance (chat_id, url) "
 				+ " VALUES ((SELECT id FROM chat WHERE tg_id='" + tg_id + "'),?)";
 			connection.execute(sql_instance, [url], function(err, results, fields) {
