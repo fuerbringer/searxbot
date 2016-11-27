@@ -48,7 +48,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 			});
 
 			// Log/Insert the search instance url for this chat
-			var sql_instance = "INSERT IGNORE INTO instance (tg_id, url) "
+			var sql_instance = "INSERT IGNORE INTO instance (chat_id, url) "
 				+ " VALUES ((SELECT id FROM chat WHERE tg_id='" + tg_id + "'),?)";
 			connection.execute(sql_instance, [url], function(err, results, fields) {
 				out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
