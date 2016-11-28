@@ -27,11 +27,21 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	bot.onText(/\/searx (.+)/, function (msg, match) {
 		var tg_id = msg.chat.id;	// Telegram Chat Id
 		var search_term = match[1]; // Search term
-		var sx_instance = '';
+		var sx_instance = '';		// url
 
 		var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
 		connection.execute(sql, function(err, results, fields) {
 			sx_instance = results[0].url;
+			sx_instance += "?q=" + search_term + "&format=json";
+			request({
+				url: sx_instance,
+				json: true
+			}, function(err, response, body) {
+				if(!error && response.statusCode === 200) {
+					console.log(body);
+				}
+			});
+
 		});
 
 	});
