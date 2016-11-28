@@ -33,12 +33,17 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		connection.execute(sql, function(err, results, fields) {
 			sx_instance = results[0].url;
 			sx_instance += "?q=" + search_term + "&format=json";
+
+			// TODO: Make sure only instances with http/https get executed
 			request({
 				url: sx_instance,
 				json: true
 			}, function(err, response, body) {
-				if(!error && response.statusCode === 200) {
-					console.log(body);
+				if(!err && response.statusCode === 200) {
+					// OK
+					// TODO: Display searx results in a compact, yet informative way
+				} else {
+					bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
 				}
 			});
 
@@ -55,6 +60,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		//var tg_foreign;
 		var url = match[1];			// Instance URL
 
+		// TODO: only accept with http / https
 		if(url.length > 0) {
 			var out = '';
 
