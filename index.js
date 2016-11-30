@@ -31,43 +31,46 @@ jsonfile.readFile('auth.json', function(err, obj) {
 
 		var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
 		connection.execute(sql, function(err, results, fields) {
-			if(!err && results.length > 0) {
-				sx_instance = results[0].url;
-				sx_instance += "?q=" + search_term + "&format=json";
+			// TODO: Clean this up
+			if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
+				if(!err && results.length > 0) {
+					sx_instance = results[0].url;
+					sx_instance += "?q=" + search_term + "&format=json";
 
-				// TODO: Make sure only instances with http/https get executed
-				request({
-					url: sx_instance,
-					json: true
-				}, function(err, response, body) {
-					if(!err && response.statusCode === 200) {
-						// OK
-						if(!err && body['results'].length > 0) {
-							// Found some search results
-							var len = (body['results'].length >= 5 ? 5 : body['results'].length);
+					// TODO: Make sure only instances with http/https get executed
+					request({
+						url: sx_instance,
+						json: true
+					}, function(err, response, body) {
+						if(!err && response.statusCode === 200) {
+							// OK
+							if(!err && body['results'].length > 0) {
+								// Found some search results
+								var len = (body['results'].length >= 5 ? 5 : body['results'].length);
 
-							//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
-							for(var i = 0; i < len; i++) {
-								var out = '';
-								out += '<b>' +  body['results'][i]['title'] + '</b>' + '\n';
-								out += body['results'][i]['url'] + '\n';
-								out += 'Search results by:';
-								for(var y = 0; y < body['results'][i]['engines'].length; y++) {
-									out += ' ' + body['results'][i]['engines'][y];
-								};
+								//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
+								for(var i = 0; i < len; i++) {
+									var out = '';
+									out += '<b>' +  body['results'][i]['title'] + '</b>' + '\n';
+									out += body['results'][i]['url'] + '\n';
+									out += 'Search results by:';
+									for(var y = 0; y < body['results'][i]['engines'].length; y++) {
+										out += ' ' + body['results'][i]['engines'][y];
+									};
 
-								bot.sendMessage(tg_id, out, {"parse_mode":"HTML"});
-							} // End for
+									bot.sendMessage(tg_id, out, {"parse_mode":"HTML"});
+								} // End for
+
+							} else {
+								bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+							} // End if
 
 						} else {
-							bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+							bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
 						} // End if
-
-					} else {
-						bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
-					} // End if
-				});
+					});
 			}
+		}
 
 		});
 
