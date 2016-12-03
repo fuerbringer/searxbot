@@ -85,9 +85,8 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		//var tg_foreign;
 		var url = match[1];			// Instance URL
 
-		// TODO: 1. only accept with http / https
 		// TODO: 2. Only accept urls with a valid, running SearX instance
-		if(url.length > 0) {
+		if(url.length > 0 && (url.includes("http://") || url.includes("https://"))) {
 			var out = '';
 
 			// Set SearX instance and if a chat
