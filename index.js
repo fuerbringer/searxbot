@@ -95,10 +95,17 @@ jsonfile.readFile('auth.json', function(err, obj) {
 			connection.execute(sql_chat, [tg_id], function(err, results, fields) {
 			});
 
+			var sql_id = "(SELECT id FROM chat WHERE tg_id='" + tg_id + "')";
+
 			// Log/Insert the search instance url for this chat
 			var sql_instance = "INSERT IGNORE INTO instance (chat_id, url) "
-				+ " VALUES ((SELECT id FROM chat WHERE tg_id='" + tg_id + "'),?)";
+				+ " VALUES (" + sql_id + ",?)";
 			connection.execute(sql_instance, [url], function(err, results, fields) {
+				// Delete old instance:
+				var sql_del = "DELETE FROM instance WHERE instance.chat_id=" + sql_id + " AND instance.url<>" + url;
+				connection.execute(sql_del, function(err, results, fields) {});
+
+				// Confirmation message:
 				out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
 				bot.sendMessage(tg_id, out);
 			});
