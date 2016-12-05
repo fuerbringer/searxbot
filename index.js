@@ -21,13 +21,18 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	// Setup polling way
 	var bot = new telegramBot(token, {polling: true});
 
+
 	/**
 	 * Perform search
 	 */
-	bot.onText(/\/searx (.+)/, function (msg, match) {
+	function searx(msg, match) {
 		var tg_id = msg.chat.id;	// Telegram Chat Id
-		var search_term = match[1]; // Search term
 		var sx_instance = '';		// url
+		var search_term = match[1]; // Search term
+		var search_amount = 5;		// Default amount of results
+		if(match[2]) {
+			search_amount = match[2];
+		}
 
 		var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
 		connection.execute(sql, function(err, results, fields) {
@@ -46,7 +51,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 							// OK
 							if(!err && body['results'].length > 0) {
 								// Found some search results
-								var len = (body['results'].length >= 5 ? 5 : body['results'].length);
+								var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
 
 								//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
 								for(var i = 0; i < len; i++) {
@@ -74,7 +79,17 @@ jsonfile.readFile('auth.json', function(err, obj) {
 
 		});
 
-	});
+	};
+
+	/**
+	 * Perform search with custom amount of results
+	 */
+	bot.onText(/\/searx "(.+)" (\d)/, searx);
+
+	/**
+	 * Short search with up to 5 results
+	 */
+	bot.onText(/\/searx "(.+)"$/, searx);
 
 	/**
 	 * Set the instance for the chat that'll be used to
@@ -127,7 +142,8 @@ jsonfile.readFile('auth.json', function(err, obj) {
 			"SearxBot - Licensed under the AGPL-3.0 License.\n\n"
 			+ "Commands:\n"
 			+ "/setinstance [url]\n"
-			+ "/searx [search_term]\n"
+			+ "/searx \"search term\"\n"
+			+ "/searx \"search term\" 3\n"
 			+ "/help\n\n"
 			+ "Source Code: https://github.com/fuerbringer/searxbot"
 			);
