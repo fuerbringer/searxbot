@@ -31,7 +31,12 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		var search_term = match[1]; // Search term
 		var search_amount = 5;		// Default amount of results
 		if(match[2]) {
-			search_amount = match[2];
+			var sx_amount_temp = parseInt(match[2]);
+			if(sx_amount_temp <= 5 && sx_amount_temp >= 1) {
+				search_amount = sx_amount_temp;
+			} else {
+				bot.sendMessage(tg_id, "Can't do `" + sx_amount_temp + "` searches! Returning 5 instead...");
+			}
 		}
 
 		var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
@@ -84,7 +89,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	/**
 	 * Perform search with custom amount of results
 	 */
-	bot.onText(/\/searx "(.+)" (\d)/, searx);
+	bot.onText(/\/searx "(.+)" (.+)$/, searx);
 
 	/**
 	 * Short search with up to 5 results
