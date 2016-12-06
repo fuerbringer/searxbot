@@ -5,6 +5,9 @@ var mysql = require('mysql2');
 var jsonfile = require('jsonfile');
 var request = require('request');
 
+// In case the user doesn't set a custom instance using /setinstance
+var default_instance = 'https://searx.ch';
+
 /**
  * Read DB info and bot token from authentication file
  */
@@ -45,41 +48,44 @@ jsonfile.readFile('auth.json', function(err, obj) {
 			if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
 				if(!err && results.length > 0) {
 					sx_instance = results[0].url;
-					sx_instance += "?q=" + search_term + "&format=json";
+				} else {
+					sx_instance = default_instance; 
+				}
 
-					// TODO: Make sure only instances with http/https get executed
-					request({
-						url: sx_instance,
-						json: true
-					}, function(err, response, body) {
-						if(!err && response.statusCode === 200) {
-							// OK
-							if(!err && body['results'].length > 0) {
-								// Found some search results
-								var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
+				sx_instance += "?q=" + search_term + "&format=json";
 
-								//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
-								for(var i = 0; i < len; i++) {
-									var out = '';
-									out += '<b>' +  body['results'][i]['title'] + '</b>' + '\n';
-									out += body['results'][i]['url'] + '\n';
-									out += 'Search results by:';
-									for(var y = 0; y < body['results'][i]['engines'].length; y++) {
-										out += ' ' + body['results'][i]['engines'][y];
-									};
+				// TODO: Make sure only instances with http/https get executed
+				request({
+					url: sx_instance,
+					json: true
+				}, function(err, response, body) {
+					if(!err && response.statusCode === 200) {
+						// OK
+						if(!err && body['results'].length > 0) {
+							// Found some search results
+							var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
 
-									bot.sendMessage(tg_id, out, {"parse_mode":"HTML"});
-								} // End for
+							//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
+							for(var i = 0; i < len; i++) {
+								var out = '';
+								out += '<b>' +  body['results'][i]['title'] + '</b>' + '\n';
+								out += body['results'][i]['url'] + '\n';
+								out += 'Search results by:';
+								for(var y = 0; y < body['results'][i]['engines'].length; y++) {
+									out += ' ' + body['results'][i]['engines'][y];
+								};
 
-							} else {
-								bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
-							} // End if
+								bot.sendMessage(tg_id, out, {"parse_mode":"HTML"});
+							} // End for
 
 						} else {
-							bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
+							bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
 						} // End if
-					});
-			}
+
+					} else {
+						bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
+					} // End if
+				});
 		}
 
 		});
