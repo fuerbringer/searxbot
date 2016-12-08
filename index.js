@@ -15,7 +15,8 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	// Telegram bot token
 	var token = obj.token;
 	// establish MySQL connection
-	var connection = mysql.createConnection({
+	var connection = mysql.createPool({
+		connectionLimit: 25,
 		host: obj.db_host,
 		user: obj.db_user,
 		password: obj.db_pass,
