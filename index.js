@@ -69,14 +69,14 @@ jsonfile.readFile('auth.json', function(err, obj) {
 							//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
 							for(var i = 0; i < len; i++) {
 								var out = '';
-								out += '<b>' +  body['results'][i]['title'] + '</b>' + '\n';
-								out += body['results'][i]['url'] + '\n';
+								out += '[' +  body['results'][i]['title']
+									+ '](' + body['results'][i]['url'] + ')\n';
 								out += 'Search results by:';
 								for(var y = 0; y < body['results'][i]['engines'].length; y++) {
 									out += ' ' + body['results'][i]['engines'][y];
 								};
 
-								bot.sendMessage(tg_id, out, {"parse_mode":"HTML"});
+								bot.sendMessage(tg_id, out, {"parse_mode":"Markdown"});
 							} // End for
 
 						} else {
