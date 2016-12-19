@@ -94,6 +94,17 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	};
 
 	/**
+	 * Perform img search
+	 */
+	function searximg(msg, match) {
+	};
+
+	/**
+	 * Image search with up to 5 results
+	 */
+	bot.onText(/\/searximg "(.+)"$/, searximg);
+
+	/**
 	 * Perform search with custom amount of results
 	 */
 	bot.onText(/\/searx "(.+)" (.+)$/, searx);
