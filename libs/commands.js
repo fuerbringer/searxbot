@@ -116,7 +116,7 @@ exports.setinstance = function (msg, match) {
 		// /setinstance Needs an argument
 		bot.sendMessage(tg_id, 'Please enter a valid URL or IP');
 	}
-});
+};
 
 
 /**
@@ -133,4 +133,4 @@ exports.help = function (msg, match) {
 			+ "/help\n\n"
 			+ "Source Code: https://github.com/fuerbringer/searxbot"
 	);
-});
+};

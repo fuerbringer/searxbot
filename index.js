@@ -1,7 +1,6 @@
-'use strict';
-
 var telegramBot = require('node-telegram-bot-api');
 var mysql = require('mysql2');
+var jsonfile = require('jsonfile');
 var commands = require('./libs/commands.js');
 
 // Default Searx instance
@@ -14,7 +13,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	// Telegram bot token
 	var token = obj.token;
 	// establish MySQL connection
-	var connection = mysql.createPool({
+	connection = mysql.createPool({
 		connectionLimit: 25,
 		host: obj.db_host,
 		user: obj.db_user,
@@ -22,7 +21,7 @@ jsonfile.readFile('auth.json', function(err, obj) {
 		database: obj.db_name});
 
 	// Setup polling way
-	var bot = new telegramBot(token, {polling: true});
+	bot = new telegramBot(token, {polling: true});
 
 	/**
 	 * Image search with up to 5 results
