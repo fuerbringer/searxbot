@@ -97,22 +97,26 @@ jsonfile.readFile('auth.json', function(err, obj) {
 	 * Perform img search
 	 */
 	function searximg(msg, match) {
+		// TODO
 	};
 
 	/**
 	 * Image search with up to 5 results
 	 */
 	bot.onText(/\/searximg "(.+)"$/, searximg);
+	bot.onText(/\/searximg '(.+)'$/, searximg);
 
 	/**
 	 * Perform search with custom amount of results
 	 */
 	bot.onText(/\/searx "(.+)" (.+)$/, searx);
+	bot.onText(/\/searx '(.+)' (.+)$/, searx);
 
 	/**
 	 * Short search with up to 5 results
 	 */
 	bot.onText(/\/searx "(.+)"$/, searx);
+	bot.onText(/\/searx '(.+)'$/, searx);
 
 	/**
 	 * Set the instance for the chat that'll be used to
