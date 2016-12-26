@@ -9,14 +9,22 @@ exports.searx = function searx(msg, match) {
 	var sx_instance = '';		// url
 	var search_term = match[1]; // Search term
 	var search_amount = 5;		// Default amount of results
+
+	// Validation
 	if(match[2]) {
 		var sx_amount_temp = parseInt(match[2]);
 		if(sx_amount_temp <= 5 && sx_amount_temp >= 1) {
 			search_amount = sx_amount_temp;
 		} else {
 			bot.sendMessage(tg_id, "Can't do `" + sx_amount_temp + "` searches! Returning 5 instead...");
+			return;
 		}
 	}
+	if(search_term.length <= 0) {
+			bot.sendMessage(tg_id, "Invalid search term. Please try something longer than 0 characters.");
+			return;
+	}
+	// End validation
 
 	var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
 	connection.execute(sql, function(err, results, fields) {
