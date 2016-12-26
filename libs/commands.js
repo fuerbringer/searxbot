@@ -17,12 +17,10 @@ exports.searx = function searx(msg, match) {
 			search_amount = sx_amount_temp;
 		} else {
 			bot.sendMessage(tg_id, "Can't do `" + sx_amount_temp + "` searches! Returning 5 instead...");
-			return;
 		}
 	}
 	if(search_term.length <= 0) {
 			bot.sendMessage(tg_id, "Invalid search term. Please try something longer than 0 characters.");
-			return;
 	}
 	// End validation
 
