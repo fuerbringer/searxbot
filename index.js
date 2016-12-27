@@ -4,7 +4,7 @@ var jsonfile = require('jsonfile');
 var commands = require('./libs/commands.js');
 
 // Default Searx instance
-var default_instance = 'https://searx.ch';
+default_instance = 'https://searx.ch';
 
 /**
  * Read DB info and bot token from authentication file
