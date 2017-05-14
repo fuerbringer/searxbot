@@ -8,6 +8,7 @@
     "minimist": "~1.2.0",
     "mysql2": "^1.1.1",
     "node-telegram-bot-api": "^0.24.0",
+    "request": "^2.81.0",
     "sqlite3": "^3.1.8"
   },
   "scripts": {

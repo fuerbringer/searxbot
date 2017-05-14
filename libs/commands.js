@@ -24,51 +24,55 @@ exports.searx = function searx(msg, match) {
 	}
 	// End validation
 
-	var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id='" + tg_id + "') ORDER BY instance.id DESC LIMIT 1";
-	connection.execute(sql, function(err, results, fields) {
-		// TODO: Clean this up
-		if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
-			if(!err && results.length > 0) {
-				sx_instance = results[0].url;
-			} else {
-				sx_instance = default_instance; 
-			}
+	var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id=?) ORDER BY instance.id DESC LIMIT 1";
 
-			sx_instance += "?q=" + search_term + "&format=json";
+	db.serialize(() => {
+		var stmt = db.prepare(sql);
+		db.each(sql, function(err, row) {
+			// TODO: Clean this up
+			if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
+				if(!err && row !== undefined) {
+					sx_instance = row.url;
+				} else {
+					sx_instance = default_instance; 
+				}
 
-			// TODO: Make sure only instances with http/https get executed
-			request({
-				url: sx_instance,
-				json: true
-			}, function(err, response, body) {
-				if(!err && response.statusCode === 200) {
-					// OK
-					if(!err && body['results'].length > 0) {
-						// Found some search results
-						var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
+				sx_instance += "?q=" + search_term + "&format=json";
 
-						//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
-						for(var i = 0; i < len; i++) {
-							var out = '';
-							out += '[' +  body['results'][i]['title']
-								+ '](' + body['results'][i]['url'] + ')\n';
-							out += 'Search results by:';
-							for(var y = 0; y < body['results'][i]['engines'].length; y++) {
-								out += ' ' + body['results'][i]['engines'][y];
-							};
+				// TODO: Make sure only instances with http/https get executed
+				request({
+					url: sx_instance,
+					json: true
+				}, function(err, response, body) {
+					if(!err && response.statusCode === 200) {
+						// OK
+						if(!err && body['results'].length > 0) {
+							// Found some search results
+							var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
 
-							bot.sendMessage(tg_id, out, {"parse_mode":"Markdown"});
-						} // End for
+							//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
+							for(var i = 0; i < len; i++) {
+								var out = '';
+								out += '[' +  body['results'][i]['title']
+									+ '](' + body['results'][i]['url'] + ')\n';
+								out += 'Search results by:';
+								for(var y = 0; y < body['results'][i]['engines'].length; y++) {
+									out += ' ' + body['results'][i]['engines'][y];
+								};
+
+								bot.sendMessage(tg_id, out, {"parse_mode":"Markdown"});
+							} // End for
+
+						} else {
+							bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+						} // End if
 
 					} else {
-						bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+						bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
 					} // End if
-
-				} else {
-					bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
-				} // End if
-			});
-		}
+				});
+			}
+		}) // End DB foreach
 
 	});
 
@@ -87,36 +91,38 @@ exports.searximg = function searximg(msg, match) {
  * Set the instance for the chat that'll be used to
  * fetch searx results
  */
-exports.setinstance = function (msg, match) {
+exports.setInstance = function (msg, match) {
 	var tg_id = msg.chat.id;	// Telegram Chat Id
 	//var tg_foreign;
 	var url = match[1];			// Instance URL
 
+	console.log("1")
 	// TODO: 2. Only accept urls with a valid, running SearX instance
 	if(url.length > 0 && (url.includes("http://") || url.includes("https://"))) {
 		var out = '';
 
 		// Set SearX instance and if a chat
 		// entry doesn't exist, insert a new one
-		var sql_chat = "INSERT IGNORE INTO chat (tg_id) values(?)";
-		connection.execute(sql_chat, [tg_id], function(err, results, fields) {
-		});
-
-		var sql_id = "(SELECT id FROM chat WHERE tg_id='" + tg_id + "')";
+		var sql_chat = "INSERT OR IGNORE INTO chat (id, tg_id) values(null, ?)";
+		var stmt1 = db.prepare(sql_chat);
+		stmt1.run(tg_id);
+		console.log("2")
 
 		// Log/Insert the search instance url for this chat
-		var sql_instance = "INSERT IGNORE INTO instance (chat_id, url) "
-			+ " VALUES (" + sql_id + ",?)";
-		connection.execute(sql_instance, [url], function(err, results, fields) {
-			// Delete old instance:
-			var sql_del = "DELETE FROM instance WHERE instance.chat_id=" + sql_id + " AND instance.url<>" + url;
-			connection.execute(sql_del, function(err, results, fields) {});
+		var sql_id = "(SELECT id FROM chat WHERE tg_id='" + tg_id + "')";
+		var sql_instance = "INSERT OR IGNORE INTO instance (chat_id, url) " + " VALUES (" + sql_id + ",?)";
+		console.log(sql_instance);
 
-			// Confirmation message:
+		db.each(sql_instance, url, function(err, row) {
+			console.log("3")
+			console.log(err)
+			var sql_del = "DELETE FROM instance WHERE instance.chat_id=" + sql_id + " AND instance.url<>" + url;
+			db.run(sql_del);
+			console.log("4")
+
 			out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
 			bot.sendMessage(tg_id, out);
 		});
-
 
 	} else {
 		// /setinstance Needs an argument

@@ -1,5 +1,6 @@
 var telegramBot = require('node-telegram-bot-api');
 var mysql = require('mysql2');
+var sqlite3 = require('sqlite3');
 var jsonfile = require('jsonfile');
 var commands = require('./libs/commands.js');
 
@@ -34,13 +35,8 @@ function getSearxArgs(obj) {
 jsonfile.readFile('auth.json', function(err, obj) {
 	var args = getSearxArgs(obj);
 
-	// establish MySQL connection
-	connection = mysql.createPool({
-		connectionLimit: 25,
-		host: args.db_host,
-		user: args.db_user,
-		password: args.db_pass,
-		database: args.db_name});
+	// establish SQLite connection
+	db = new sqlite3.Database(args.db_name);
 
 	// Setup polling way
 	bot = new telegramBot(args.token, {polling: true});
