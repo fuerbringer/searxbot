@@ -1,56 +1,55 @@
-var jsonfile = require('jsonfile');
-var request = require('request');
+const jsonfile = require('jsonfile');
+const request = require('request');
 
 /**
  * Performs web search and returns to chat
  */
 exports.searx = function searx(msg, match) {
-	var tg_id = msg.chat.id;	// Telegram Chat Id
-	var sx_instance = '';		// url
-	var search_term = match[1]; // Search term
-	var search_amount = 5;		// Default amount of results
+	const tgId = msg.chat.id;	// Telegram Chat Id
+	var sxInstance = '';		// url
+	const search_term = match[1]; // Search term
+	var sxAmount = 5;		// Default amount of results
 
 	// Validation
 	if(match[2]) {
-		var sx_amount_temp = parseInt(match[2]);
-		if(sx_amount_temp <= 5 && sx_amount_temp >= 1) {
-			search_amount = sx_amount_temp;
+		var sxTmpAmount = parseInt(match[2]);
+		if(sxTmpAmount <= 5 && sxTmpAmount >= 1) {
+			sxAmount = sxTmpAmount;
 		} else {
-			bot.sendMessage(tg_id, "Can't do `" + sx_amount_temp + "` searches! Returning 5 instead...");
+			bot.sendMessage(tgId, "Can't do `" + sxTmpAmount + "` searches! Returning 5 instead...");
 		}
 	}
 	if(search_term.length <= 0) {
-			bot.sendMessage(tg_id, "Invalid search term. Please try something longer than 0 characters.");
+			bot.sendMessage(tgId, "Invalid search term. Please try something longer than 0 characters.");
 	}
 	// End validation
 
-	var sql = "SELECT url, instance.id FROM instance WHERE chat_id=(SELECT id FROM chat WHERE tg_id=?) ORDER BY instance.id DESC LIMIT 1";
+	const sql = "SELECT instance AS url FROM chat WHERE tg_id=? LIMIT 1";
 
 	db.serialize(() => {
 		var stmt = db.prepare(sql);
-		db.each(sql, function(err, row) {
+		db.each(sql, tgId, function(err, row) {
 			// TODO: Clean this up
 			if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
 				if(!err && row !== undefined) {
-					sx_instance = row.url;
+					sxInstance = row.url;
 				} else {
-					sx_instance = default_instance; 
+					sxInstance = default_instance;
 				}
 
-				sx_instance += "?q=" + search_term + "&format=json";
+				sxInstance += "?q=" + search_term + "&format=json";
 
 				// TODO: Make sure only instances with http/https get executed
 				request({
-					url: sx_instance,
+					url: sxInstance,
 					json: true
 				}, function(err, response, body) {
 					if(!err && response.statusCode === 200) {
 						// OK
 						if(!err && body['results'].length > 0) {
 							// Found some search results
-							var len = (body['results'].length >= search_amount ? search_amount : body['results'].length);
+							const len = (body['results'].length >= sxAmount ? sxAmount : body['results'].length);
 
-							//bot.sendMessage(tg_id, "Here's your SearX results for `" + body['query'] + "`!");
 							for(var i = 0; i < len; i++) {
 								var out = '';
 								out += '[' +  body['results'][i]['title']
@@ -60,22 +59,20 @@ exports.searx = function searx(msg, match) {
 									out += ' ' + body['results'][i]['engines'][y];
 								};
 
-								bot.sendMessage(tg_id, out, {"parse_mode":"Markdown"});
+								bot.sendMessage(tgId, out, {"parse_mode":"Markdown"});
 							} // End for
 
 						} else {
-							bot.sendMessage(tg_id, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+							bot.sendMessage(tgId, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
 						} // End if
 
 					} else {
-						bot.sendMessage(tg_id, "Sorry! Something went wrong with that query. (Bad Request)");
+						bot.sendMessage(tgId, "Sorry! Something went wrong with that query. (Bad Request)");
 					} // End if
 				});
 			}
 		}) // End DB foreach
-
 	});
-
 };
 
 
@@ -92,41 +89,27 @@ exports.searximg = function searximg(msg, match) {
  * fetch searx results
  */
 exports.setInstance = function (msg, match) {
-	var tg_id = msg.chat.id;	// Telegram Chat Id
-	//var tg_foreign;
-	var url = match[1];			// Instance URL
+	const tgId = msg.chat.id;	// Telegram Chat Id
+	const url = match[1];			// Instance URL
 
-	console.log("1")
 	// TODO: 2. Only accept urls with a valid, running SearX instance
 	if(url.length > 0 && (url.includes("http://") || url.includes("https://"))) {
 		var out = '';
 
-		// Set SearX instance and if a chat
-		// entry doesn't exist, insert a new one
-		var sql_chat = "INSERT OR IGNORE INTO chat (id, tg_id) values(null, ?)";
-		var stmt1 = db.prepare(sql_chat);
-		stmt1.run(tg_id);
-		console.log("2")
+		// Set SearX instance and if a chat entry doesn't exist, insert a new one
+		const sql_chat = "INSERT OR IGNORE INTO chat (tg_id, instance) values(?, ?)";
+		const stmt1 = db.prepare(sql_chat);
+		stmt1.run(tgId, url);
 
-		// Log/Insert the search instance url for this chat
-		var sql_id = "(SELECT id FROM chat WHERE tg_id='" + tg_id + "')";
-		var sql_instance = "INSERT OR IGNORE INTO instance (chat_id, url) " + " VALUES (" + sql_id + ",?)";
-		console.log(sql_instance);
+		const sql_instance = "UPDATE chat SET instance=? WHERE tg_id=?";
+		const stmt2 = db.prepare(sql_instance);
+		stmt2.run(tgId);
 
-		db.each(sql_instance, url, function(err, row) {
-			console.log("3")
-			console.log(err)
-			var sql_del = "DELETE FROM instance WHERE instance.chat_id=" + sql_id + " AND instance.url<>" + url;
-			db.run(sql_del);
-			console.log("4")
-
-			out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
-			bot.sendMessage(tg_id, out);
-		});
-
+		out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
+		bot.sendMessage(tgId, out);
 	} else {
 		// /setinstance Needs an argument
-		bot.sendMessage(tg_id, 'Please enter a valid URL or IP');
+		bot.sendMessage(tgId, 'Please enter a valid URL or IP');
 	}
 };
 
@@ -135,14 +118,15 @@ exports.setInstance = function (msg, match) {
  * /help command
  */
 exports.help = function (msg, match) {
-	var tg_id = msg.chat.id;	// Telegram Chat Id
-	bot.sendMessage(tg_id,
+	const tgId = msg.chat.id;	// Telegram Chat Id
+	const helpStr =
 		"SearxBot - Licensed under the AGPL-3.0 License.\n\n"
 			+ "Commands:\n"
 			+ "/setinstance [url]\n"
 			+ "/searx \"search term\"\n"
 			+ "/searx \"search term\" 3\n"
 			+ "/help\n\n"
-			+ "Source Code: https://github.com/fuerbringer/searxbot"
-	);
+			+ "Source Code: https://github.com/fuerbringer/searxbot";
+
+	bot.sendMessage(tgId, helpStr);
 };
