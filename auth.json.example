@@ -1,7 +1,4 @@
 {
 "token":"abcdefghi:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-"db_host":"127.0.0.1",
-"db_user":"root",
-"db_pass":"",
-"db_name":"my_db"
+"db_name":"db/searx.db"
 }
