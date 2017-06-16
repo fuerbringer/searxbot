@@ -13,14 +13,13 @@ Example usage:
 The _old school_ way of installing Searxbot is quite simple:
 
 1.  `git clone` this repository somewhere on your server.
-2.  Import the `searx.sql` file from the `install` directory into your MySQL database.
-3.  Rename the `auth.json.example` file to `auth.json` and fill in your credidentials.
-4.  Run `npm install`
-5.  Finally, run `npm start`. This will start the bot.
+2.  Rename the `auth.json.example` file to `auth.json` and fill in your credidentials.
+3.  Run `npm install`
+4.  Finally, run `npm start`. This will start the bot.
 
 ### Docker
 
-Dockerfile coming soon
+Dockerfile coming soon™
 
 ## SearX instances
 A list of public SearX instances can be found [here](https://github.com/asciimoo/searx/wiki/Searx-instances).
