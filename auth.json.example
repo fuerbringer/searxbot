@@ -1,4 +1,4 @@
 {
 "token":"abcdefghi:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-"db_name":"my_db"
+"db_name":"db/searx.db"
 }
