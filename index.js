@@ -1,5 +1,4 @@
 var telegramBot = require('node-telegram-bot-api');
-var mysql = require('mysql2');
 var sqlite3 = require('sqlite3');
 var jsonfile = require('jsonfile');
 var commands = require('./libs/commands.js');
