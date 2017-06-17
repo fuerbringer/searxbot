@@ -9,6 +9,7 @@ exports.searx = function searx(msg, match) {
 	var sxInstance = '';		// url
 	const search_term = match[1]; // Search term
 	var sxAmount = 5;		// Default amount of results
+	var validTerm = true;
 
 	// Validation
 	if(match[2]) {
@@ -17,62 +18,67 @@ exports.searx = function searx(msg, match) {
 			sxAmount = sxTmpAmount;
 		} else {
 			bot.sendMessage(tgId, "Can't do `" + sxTmpAmount + "` searches! Returning 5 instead...");
+			validTerm = false;
 		}
 	}
 	if(search_term.length <= 0) {
 			bot.sendMessage(tgId, "Invalid search term. Please try something longer than 0 characters.");
+			validTerm = false;
 	}
 	// End validation
 
-	const sql = "SELECT instance AS url FROM chat WHERE tg_id=? LIMIT 1";
 
-	db.serialize(() => {
-		var stmt = db.prepare(sql);
-		db.each(sql, tgId, function(err, row) {
-			// TODO: Clean this up
-			if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
-				if(!err && row !== undefined) {
-					sxInstance = row.url;
-				} else {
-					sxInstance = default_instance;
-				}
+	if(validTerm) {
+		const sql = "SELECT instance AS url FROM chat WHERE tg_id=? LIMIT 1";
+		
+		db.serialize(() => {
+			var stmt = db.prepare(sql);
+			db.each(sql, tgId, function(err, row) {
+				// TODO: Clean this up
+				if(search_term.indexOf("&") == -1 && search_term.indexOf("?") == -1) {
+					if(!err && row !== undefined) {
+						sxInstance = row.url;
+					} else {
+						sxInstance = default_instance;
+					}
 
-				sxInstance += "?q=" + search_term + "&format=json";
+					sxInstance += "?q=" + search_term + "&format=json";
 
-				// TODO: Make sure only instances with http/https get executed
-				request({
-					url: sxInstance,
-					json: true
-				}, function(err, response, body) {
-					if(!err && response.statusCode === 200) {
-						// OK
-						if(!err && body['results'].length > 0) {
-							// Found some search results
-							const len = (body['results'].length >= sxAmount ? sxAmount : body['results'].length);
+					// TODO: Make sure only instances with http/https get executed
+					request({
+						url: sxInstance,
+						json: true
+					}, function(err, response, body) {
+						if(!err && response.statusCode === 200) {
+							// OK
+							if(!err && body['results'].length > 0) {
+								// Found some search results
+								const len = (body['results'].length >= sxAmount ? sxAmount : body['results'].length);
 
-							for(var i = 0; i < len; i++) {
-								var out = '';
-								out += '[' +  body['results'][i]['title']
+								for(var i = 0; i < len; i++) {
+									var out = '';
+									out += '[' +  body['results'][i]['title']
 									+ '](' + body['results'][i]['url'] + ')\n';
-								out += 'Search results by:';
-								for(var y = 0; y < body['results'][i]['engines'].length; y++) {
-									out += ' ' + body['results'][i]['engines'][y];
-								};
+									out += 'Search results by:';
+									for(var y = 0; y < body['results'][i]['engines'].length; y++) {
+										out += ' ' + body['results'][i]['engines'][y];
+									};
 
-								bot.sendMessage(tgId, out, {"parse_mode":"Markdown"});
-							} // End for
+									bot.sendMessage(tgId, out, {"parse_mode":"Markdown"});
+								} // End for
+
+							} else {
+								bot.sendMessage(tgId, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+							} // End if
 
 						} else {
-							bot.sendMessage(tgId, "<b>Sorry!</b> That did not yield any results.", {"parse_mode":"HTML"});
+							bot.sendMessage(tgId, "Sorry! Something went wrong with that query. (Bad Request)");
 						} // End if
-
-					} else {
-						bot.sendMessage(tgId, "Sorry! Something went wrong with that query. (Bad Request)");
-					} // End if
-				});
-			}
-		}) // End DB foreach
-	});
+					});
+				}
+			}) // End DB foreach
+		});
+	} // End if validTerm
 };
 
 
