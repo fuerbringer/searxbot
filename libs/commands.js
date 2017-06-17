@@ -30,7 +30,12 @@ exports.searx = function searx(msg, match) {
 
 	if(validTerm) {
 		const sql = "SELECT instance AS url FROM chat WHERE tg_id=? LIMIT 1";
-		
+		const sql_chat = "INSERT OR IGNORE INTO chat (tg_id, instance) values(?, ?)";
+
+		// Set SearX instance and if a chat entry doesn't exist, insert a new one
+		const stmt1 = db.prepare(sql_chat);
+		stmt1.run(tgId, default_instance);
+
 		db.serialize(() => {
 			var stmt = db.prepare(sql);
 			db.each(sql, tgId, function(err, row) {
