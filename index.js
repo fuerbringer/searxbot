@@ -9,9 +9,6 @@ default_instance = 'https://searx.ch';
 function getSearxArgs(obj) {
 	if(obj) {
 		if(obj.token.length &&
-			obj.db_host.length &&
-			obj.db_user.length &&
-			obj.db_pass.length &&
 			obj.db_name.length) {
 		}
 	} else {
@@ -19,9 +16,6 @@ function getSearxArgs(obj) {
 		var argv = require('minimist')(process.argv.slice(2));
 		obj = {
 			token: argv.token,
-			db_host: argv.db_host,
-			db_user: argv.db_user,
-			db_pass: argv.db_pass,
 			db_name: argv.db_name
 		};
 	}
