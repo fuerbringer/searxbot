@@ -103,7 +103,7 @@ exports.setInstance = function (msg, match) {
 
 		const sql_instance = "UPDATE chat SET instance=? WHERE tg_id=?";
 		const stmt2 = db.prepare(sql_instance);
-		stmt2.run(tgId);
+		stmt2.run(url, tgId);
 
 		out += "Got it! Next time you /searx I'll fetch the results from '" + url + "'.";
 		bot.sendMessage(tgId, out);
