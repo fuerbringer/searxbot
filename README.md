@@ -1,7 +1,7 @@
-# SearX Bot
-A Telegram Bot that forwards search results from a public [SearX](https://github.com/asciimoo/searx) instance.
+# Searxbot
+A Telegram Bot that forwards search results from a public [Searx](https://github.com/asciimoo/searx) instance.
 
-_@SearxBot on Telegram_
+_[@SearxBot](https://t.me/SearxBot) on Telegram_
 
 ## Usage
 Example usage:
@@ -9,6 +9,7 @@ Example usage:
 ![SearxBot Usage Example](https://github.com/fuerbringer/searxbot/raw/master/usage.png)
 
 ## Setup
+Every time you use this bot your searches are sent to the server the bot is running on, which isn't optimal for privacy. That is why I recommend self hosting it! Here's how:
 ### Classic
 The _old school_ way of installing Searxbot is quite simple:
 
@@ -24,5 +25,5 @@ The _old school_ way of installing Searxbot is quite simple:
 3.  Build the Docker image like this: `docker build -t fuerbringer/searxbot .`
 4.  Run the Docker image: `docker run -d --name searxbot fuerbringer/searxbot`
 
-## SearX instances
-A list of public SearX instances can be found [here](https://github.com/asciimoo/searx/wiki/Searx-instances).
+## Searx instances
+A list of public Searx instances can be found [here](https://github.com/asciimoo/searx/wiki/Searx-instances).
