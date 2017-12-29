@@ -4,6 +4,7 @@
   "description": "A Telegram bot that delivers search results from a Searx instance.",
   "main": "index.js",
   "dependencies": {
+    "claudia-bot-builder": "^2.15.2",
     "request": "^2.81.0"
   },
   "scripts": {

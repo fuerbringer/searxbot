@@ -1,0 +1,11 @@
+{
+  "lambda": {
+    "role": "searxbot-executor",
+    "name": "searxbot",
+    "region": "eu-central-1"
+  },
+  "api": {
+    "id": "xzgebxuse5",
+    "module": "bot"
+  }
+}
