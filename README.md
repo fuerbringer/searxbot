@@ -1,5 +1,5 @@
 # Searxbot
-A Telegram Bot that forwards search results from a public [Searx](https://github.com/asciimoo/searx) instance.
+A serverless Telegram chatbot to search the internet!
 
 _[@SearxBot](https://t.me/SearxBot) on Telegram_
 
@@ -9,21 +9,25 @@ Example usage:
 ![SearxBot Usage Example](https://github.com/fuerbringer/searxbot/raw/master/usage.png)
 
 ## Setup
-Every time you use this bot your searches are sent to the server the bot is running on, which isn't optimal for privacy. That is why I recommend self hosting it! Here's how:
-### Classic
-The _old school_ way of installing Searxbot is quite simple:
+The serverless chatbot Searxbot works best while deployed on [AWS Lambda](https://aws.amazon.com/lambda/).
 
-1.  `git clone` this repository somewhere on your server.
-2.  Rename the `auth.json.example` file to `auth.json` and fill in your credidentials.
-3.  Run `npm install`
-4.  Finally, run `npm start`. This will start the bot.
+### Steps to deploy
 
-### Docker
+1. Clone this repository: `git clone https://github.com/fuerbringer/searxbot.git && cd searxbot`
+2. Install the necessary dependencies and claudia: `npm install && npm install -g claudia`
+3. Deploy the bot to AWS Lambda: `claudia create --region eu-central-1 --api-module bot`
+4. Re-deploy after you've made your changes: `claudia update`
 
-1.  `git clone` this repository somewhere on your server.
-2.  Rename the `auth.json.example` file to `auth.json` and fill in your credidentials.
-3.  Build the Docker image like this: `docker build -t fuerbringer/searxbot .`
-4.  Run the Docker image: `docker run -d --name searxbot fuerbringer/searxbot`
+## Technologies used
 
-## Searx instances
-A list of public Searx instances can be found [here](https://github.com/asciimoo/searx/wiki/Searx-instances).
+- Node (6.10)
+- AWS Lambda
+- Claudia.js
+- claudia-bot-builder
+- minimal-request-promise
+
+## Useful links and resources
+- [Hello World Chatbot using Lambda](https://claudiajs.com/tutorials/hello-world-chatbot.html)
+- [GitHub Repository claudia-bot-builder](https://github.com/claudiajs/claudia-bot-builder)
+- [Amazon AWS Lambda](https://aws.amazon.com/lambda/)
+- [Public Searx instances](https://github.com/asciimoo/searx/wiki/Searx-instances).
