@@ -1,10 +1,7 @@
 # Searxbot
-A serverless Telegram chatbot to search the internet!
+A serverless [Telegram](https://telegram.org/) chatbot to search the internet! Add it to your Telegram: [@SearxBot](https://t.me/SearxBot)
 
-_[@SearxBot](https://t.me/SearxBot) on Telegram_
-
-## Usage
-Example usage:
+## Example usage
 
 ![SearxBot Usage Example](https://github.com/fuerbringer/searxbot/raw/master/usage.png)
 
@@ -30,4 +27,5 @@ The serverless chatbot Searxbot works best while deployed on [AWS Lambda](https:
 - [Hello World Chatbot using Lambda](https://claudiajs.com/tutorials/hello-world-chatbot.html)
 - [GitHub Repository claudia-bot-builder](https://github.com/claudiajs/claudia-bot-builder)
 - [Amazon AWS Lambda](https://aws.amazon.com/lambda/)
-- [Public Searx instances](https://github.com/asciimoo/searx/wiki/Searx-instances).
+- [Public Searx instances](https://github.com/asciimoo/searx/wiki/Searx-instances)
+- [Register new bots with BotFather](https://core.telegram.org/bots#6-botfather)

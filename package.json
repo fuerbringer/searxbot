@@ -1,8 +1,8 @@
 {
   "name": "searxbot",
-  "version": "1.0.0",
-  "description": "A Telegram bot that delivers search results from a Searx instance.",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "A serverless Telegram chatbot to search the internet!",
+  "main": "bot.js",
   "dependencies": {
     "claudia-bot-builder": "^2.15.2",
     "minimal-request-promise": "^1.5.0"
