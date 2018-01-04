@@ -5,25 +5,29 @@ const request = require('minimal-request-promise')
 // Searx instance hosted by the non-profit association La Quadrature du Net
 const defaultInstance = 'https://searx.laquadrature.net/'
 
-const search = (req) => {
+const search = req => {
   return request.get(`${defaultInstance}?q=${req}&format=json`).then(res => {
+    const maxResults = 5
     const json = JSON.parse(res.body)
-    const max = json.results.length >= 5 ? 5 : json.results.length
+    const count = json.results.length >= maxResults ? maxResults : json.results.length
 
-    if(max > 0) {
-      const titleStr = `Here's ${max} result${max > 1 ? "s" : ""} related to *${req}*:\n`
-      var resultStr = ''
-      for(var i = 0; i < max; i++) {
-        resultStr += `${i+1}. [${json.results[i].title}](${json.results[i].pretty_url})\n`
+    if(count > 0) {
+      // Anon. function to build individual search result strings
+      const buildResults = (results, index) => {
+        return `${index+1}. [${results.title}](${results.pretty_url})`
       }
-      return new telegramTemplate.Text(titleStr + resultStr).get()
+      const requestResults = json.results.slice(0, maxResults)
+      const titleStr = `Here's ${count} result${count > 1 ? "s" : ""} related to *${req}*.:\n`
+      const resultStr = requestResults.map(buildResults).join(`\n`) // Combine results
+      const messageString = titleStr + resultStr
+      return new telegramTemplate.Text(messageString).get()
     } else {
       return new telegramTemplate.Text(`*Sorry!* I couldn't find anything related to *${req}*.`).get()
     }
   })
 }
 
-module.exports = botBuilder((request) => {
+module.exports = botBuilder(request => {
   const match = request.text.match(/\/searx (.+)/)
   if(match !== null) {
     return search(match[1])
