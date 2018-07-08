@@ -10,10 +10,26 @@ The serverless chatbot Searxbot works best while deployed on [AWS Lambda](https:
 
 ### Steps to deploy
 
+#### AWS Lambda
+
 1. Clone this repository: `git clone https://github.com/fuerbringer/searxbot.git && cd searxbot`
 2. Install the necessary dependencies and claudia: `npm install && npm install -g claudia`
 3. Deploy the bot to AWS Lambda: `claudia create --region eu-central-1 --api-module bot`
 4. Re-deploy after you've made your changes: `claudia update`
+
+#### Locally
+
+You'll first want to put your Telegram Bot token into `.env` like so:
+
+```
+BOT_TOKEN=AAAAAAAAAA:123tokenfrombotfather321
+```
+
+Then run `npm install` and `npm start`. Done.
+
+#### Docker
+
+First set up your `.env` file as described above. Then you can build the Docker image (`docker build -t searxbot .`) and run it (`docker run -d searxbot`). Done.
 
 ## Technologies used
 
