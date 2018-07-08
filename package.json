@@ -2,11 +2,13 @@
   "name": "searxbot",
   "version": "2.0.0",
   "description": "A serverless Telegram chatbot to search the internet!",
-  "main": "bot.js",
+  "main": "run.js",
   "dependencies": {
-    "claudia-bot-builder": "^2.15.2",
-    "request": "^2.83.0",
-    "request-promise": "^4.2.2"
+    "claudia-bot-builder": "~4.1.0",
+    "dotenv": "^6.0.0",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "telegraf": "^3.21.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

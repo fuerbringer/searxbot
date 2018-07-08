@@ -1,11 +1,9 @@
-const botBuilder = require('claudia-bot-builder')
-const telegramTemplate = require('claudia-bot-builder').telegramTemplate
 const request = require('request-promise')
 
 // Searx instance hosted by the non-profit association La Quadrature du Net
 const defaultInstance = 'https://searx.laquadrature.net/'
 
-const search = term => {
+module.exports.search = term => {
   const params = {
     method: 'POST',
     uri: defaultInstance,
@@ -29,19 +27,12 @@ const search = term => {
         const titleStr = `Here's ${count} result${count > 1 ? "s" : ""} related to *${params.form.q}*.:\n`
         const resultStr = requestResults.map(buildResults).join(`\n`) // Combine results
         const messageString = titleStr + resultStr
-        return new telegramTemplate.Text(messageString).get()
+        return messageString
       } else {
-        return new telegramTemplate.Text(`*Sorry!* I couldn't find anything related to *${params.form.q}*.`).get()
+        return `*Sorry!* I couldn't find anything related to *${params.form.q}*.`
       }
     })
     .catch(error => {
-      return new telegramTemplate.Text(`*Sorry!* Something went wrong on our end. Will be back soon. Complain @sevfbr in the meantime.`).get()
+      return `*Sorry!* Something went wrong on our end. Will be back soon. Complain @sevfbr in the meantime.`
     }) 
 }
-
-module.exports = botBuilder(request => {
-  const match = request.text.match(/\/searx (.+)/)
-  if(match !== null) {
-    return search(match[1])
-  }
-})
