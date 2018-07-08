@@ -1,4 +1,6 @@
-# Single Custon Files
+.env 
+
+# Single Custom Files
 auth.json
 
 # Claudia AWS instance details
