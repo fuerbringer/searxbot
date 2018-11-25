@@ -9,7 +9,9 @@ bot.start(ctx => ctx.reply('hello'))
 
 bot.command('searx', ctx => {
     const match = ctx.message.text.match(/\/searx (.+)/)
-    searxBot.search(match[1]).then(result => ctx.replyWithMarkdown(result))
+    if(match && match.length > 1) {
+      searxBot.search(match[1]).then(result => ctx.replyWithMarkdown(result))
+    }
 })
 
 bot.startPolling()
